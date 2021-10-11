@@ -1,11 +1,14 @@
 const express = require('express');
-const restricted = require('../auth/auth-middleware.js');
+
+const Users = require('./users-model');
+const { restricted } = require('../auth/auth-middleware');
 
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
+router.get('/', restricted, async (req, res, next) => {
   try {
-    res.status(200).json('working')
+    const users = await Users.find();
+    res.status(200).json(users)
   } catch (err) {
     next(err)
   }
