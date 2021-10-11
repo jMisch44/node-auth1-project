@@ -32,8 +32,8 @@ function findById(user_id) {
   resolves to the newly inserted user { user_id, username }
  */
 async function add(user) {
-  await db('users').insert(user)
-  return findById(user.id)
+  const [id] = await db('users').insert(user, 'id')
+  return findById(id)
 }
 
 module.exports = {

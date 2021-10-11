@@ -7,59 +7,35 @@ const router = express.Router();
 
 router.post('/register', checkUsernameFree, checkPasswordLength, async (req, res, next) => {
   try{
-    const { user_id, username, password } = req.body
+    const { username, password } = req.body
     const hash = bcrypt.hashSync(password, 8)
-    const user = { user_id, username, password: hash }
+    const user = { username, password: hash }
     const result = await Users.add(user)
-    res.status(200).json(req.user)
+    res.status(200).json(result)
   } catch (err) {
     next(err)
   }
 })
-/**
-  1 [POST] /api/auth/register { "username": "sue", "password": "1234" }
 
-  response:
-  status 200
-  {
-    "user_id": 2,
-    "username": "sue"
-  }
-
-  response on username taken:
-  status 422
-  {
-    "message": "Username taken"
-  }
-
-  response on password three chars or less:
-  status 422
-  {
-    "message": "Password must be longer than 3 chars"
-  }
- */
-router.post('/login', checkUsernameExists, (req, res, next) => {
+router.post('/login', checkUsernameExists, async (req, res, next) => {
     try {
-      res.status(200).json('working')
+      const user = await Users.findBy(req.body.username).first()
+      if(bcrypt.compareSync(req.body.password, user.password)) {
+        req.session.user = user
+        res.status(200).json({
+          message: `Welcome ${user.username}`
+        })
+      } else {
+        next({
+          status: 401,
+          message: "Invalid credentials"
+        })
+      }
     } catch (err) {
       next(err)
     }
 })
-/**
-  2 [POST] /api/auth/login { "username": "sue", "password": "1234" }
 
-  response:
-  status 200
-  {
-    "message": "Welcome sue!"
-  }
-
-  response on invalid credentials:
-  status 401
-  {
-    "message": "Invalid credentials"
-  }
- */
 router.get('/logout', (req, res, next) => {
     try {
       res.status(200).json('working')
@@ -67,21 +43,5 @@ router.get('/logout', (req, res, next) => {
       next(err)
     }
 })
-
-/**
-  3 [GET] /api/auth/logout
-
-  response for logged-in users:
-  status 200
-  {
-    "message": "logged out"
-  }
-
-  response for not-logged-in users:
-  status 200
-  {
-    "message": "no session"
-  }
- */
 
 module.exports = router;
