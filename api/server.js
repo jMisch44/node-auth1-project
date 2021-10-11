@@ -9,25 +9,24 @@ const authRouter = require('./auth/auth-router');
 
 const server = express();
 
-server.use(helmet());
 server.use(session({
   name: 'chocolatechip',
-  secret: 'Shh secrets',
-  cookie: {
-    maxAge: 60 * 60 * 1000,
-    secure: false,
-    httpOnly: false,
-  },
+  secret: 'shh secret',
   resave: false,
   saveUninitialized: false,
   store: new Store({
     knex: require('../data/db-config'),
     tablename: 'sessions',
-    sidfieldname: 'sid',
     createtable: true,
     clearInterval: 1000 * 60 * 60,
-  })
+  }),
+  cookie: {
+    maxAge: 60 * 60 * 1000,
+    secure: false,
+    httpOnly: true,
+  },
 }))
+server.use(helmet());
 server.use(express.json());
 server.use(cors());
 
