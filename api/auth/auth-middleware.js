@@ -6,8 +6,12 @@
     "message": "You shall not pass!"
   }
 */
-function restricted() {
+function restricted(req, res, next) {
+  try {
 
+  } catch (err) {
+    next(err)
+  }
 }
 
 /*
@@ -46,4 +50,9 @@ function checkPasswordLength() {
 
 }
 
-// Don't forget to add these to the `exports` object so they can be required in other modules
+module.exports = {
+  restricted,
+  checkUsernameFree,
+  checkUsernameExists,
+  checkPasswordLength,
+}
