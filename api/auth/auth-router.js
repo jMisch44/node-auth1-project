@@ -23,11 +23,12 @@ router.post(
 })
 
 router.post('/login', checkUsernameExists, async (req, res, next) => {
+  try{
   const { password } = req.body
   if(bcrypt.compareSync(password, req.user.password)) {
     req.session.user = req.user
     res.json({
-      messaage: `Welcome ${req.user.username}`
+      message: `Welcome ${req.user.username}`
     })
   } else {
     next({
@@ -35,6 +36,9 @@ router.post('/login', checkUsernameExists, async (req, res, next) => {
       message: "Invalid credentials"
     })
   }
+} catch (err) {
+  next(err)
+}
 })
 
 router.get('/logout', (req, res, next) => {
